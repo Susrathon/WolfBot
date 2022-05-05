@@ -27,13 +27,14 @@ ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume=0.5):
+    def __init__(self, source, *, data, volume=0.1):
         super().__init__(source, volume)
 
         self.data = data
 
         self.title = data.get("title")
-        self.url = data.get("url")
+        self.duration = data.get("duration")
+        self.url = data.get("webpage_url")
 
     # TODO: Support serach
     @classmethod
@@ -85,6 +86,7 @@ class Music(commands.Cog):
         async with ctx.typing():
             requested_song = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
             if self.current_song is None:
+                self.song_queue.append(requested_song)
                 self.current_song = requested_song
                 ctx.voice_client.play(self.song_queue.pop(0),
                                       after=lambda e: print(f"Player error: {e}") if e else self.play_next(ctx))
@@ -102,7 +104,7 @@ class Music(commands.Cog):
                 self.song_queue.clear()
                 self.current_song = None
                 self.loop_song = False
-                await ctx.voice_client.disconnect()
+                ctx.voice_client.disconnect()
         ctx.voice_client.play(self.current_song,
                               after=lambda e: print(f"Player error: {e}") if e else self.play_next(ctx))
 

@@ -92,7 +92,7 @@ class QuoteCog(commands.Cog):
                 quotes.append(row.replace("\n", "").replace("\\n", "\n"))
                 # rewrite to strip last two characters and handle multi line quites
 
-    async def write_file():
+    async def write_file(self):
         text = "\n".join([row.replace("\n", "\\n") for row in quotes])
         with open("quotes.csv", 'w', newline="", encoding="utf_8") as file:
             file.write(text)
